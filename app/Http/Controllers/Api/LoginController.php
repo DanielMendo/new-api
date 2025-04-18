@@ -23,7 +23,7 @@ class LoginController extends Controller
 
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Credenciales incorrectas',
+                'message' => 'The credentials provided are incorrect.'
             ], 401);
         }
 
