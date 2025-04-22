@@ -22,8 +22,8 @@ class SocialAuthController extends Controller
                 ['email' => $googleUser->getEmail()],
                 [
                     'name' => $googleUser->getName(),
-                    'last_name' => '',
-                    'phone' => '',
+                    'last_name' => $googleUser->getFamilyName() ?? null,
+                    'phone' => $googleUser->getPhone() ?? null,
                     'email_verified_at' => now(),
                     'password' => Hash::make(Str::random(10)),
                 ]
@@ -48,12 +48,16 @@ class SocialAuthController extends Controller
         try {
             $facebookUser = Socialite::driver('facebook')->stateless()->userFromToken($request->token);
 
+            $nameParts = explode(' ', $facebookUser->getName(), 2);
+            $firstName = $nameParts[0] ?? null;
+            $lastName = $nameParts[1] ?? null;
+
             $user = User::firstOrCreate(
                 ['email' => $facebookUser->getEmail()],
                 [
-                    'name' => $facebookUser->getName(),
-                    'last_name' => '',
-                    'phone' => '',
+                    'name' => $firstName,
+                    'last_name' => $lastName,
+                    'phone' => null,
                     'email_verified_at' => now(),
                     'password' => Hash::make(Str::random(10)),
                 ]
