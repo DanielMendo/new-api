@@ -22,7 +22,7 @@ class SocialAuthController extends Controller
                 ['email' => $googleUser->getEmail()],
                 [
                     'name' => $googleUser->getName(),
-                    'last_name' => $googleUser->getFamilyName() ?? null,
+                    'last_name' => $googleUser->getLastName() ?? null,
                     'phone' => $googleUser->getPhone() ?? null,
                     'email_verified_at' => now(),
                     'password' => Hash::make(Str::random(10)),
