@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\LogoutController;
+use App\Http\Controllers\Api\EditorImageController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\PasswordResetController;
 
@@ -12,6 +13,7 @@ Route::apiResource('users', UserController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
+    Route::post('/editor/image/upload', [EditorImageController::class, 'upload']);
 });
 
 Route::post('/register', [AuthController::class, 'register']);
