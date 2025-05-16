@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //User::factory(5)->create();
+        User::factory(5)->create();
 
         // Category::factory()->create([
         //     'name' => 'Ciencia',
@@ -23,12 +23,13 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // Post::factory()->create([
+        //     'user_id' => 1,
+        //     'category_id' => 1,
         //     'title' => 'How To Create A Blog With Laravel',
         //     'content' => 'Create a blog with Laravel is a simple process. You can create a blog with Laravel in just a few minutes. In this tutorial, you will learn how to create a blog with Laravel.',
         //     'image' => 'https://via.placeholder.com/150',
+        //     'html' => '<p>Create a blog with Laravel is a simple process. You can create a blog with Laravel in just a few minutes. In this tutorial, you will learn how to create a blog with Laravel.</p>',
         //     'is_published' => true,
-        //     'user_id' => 1,
-        //     'category_id' => 1,
         // ]);
 
         //User::factory()->create([
