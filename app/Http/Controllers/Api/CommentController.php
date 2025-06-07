@@ -8,21 +8,25 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\NewCommentNotification;
 
 class CommentController extends Controller
 {
-    public function index($id)
+    public function index($id, Request $request)
     {
+        $order = $request->query('order', 'desc');
+
         $post = Post::findOrFail($id);
 
         $comments = $post->comments()->with(['user', 'replies.user'])
             ->whereNull('parent_id')
+            ->orderBy('created_at', $order)
             ->get();
 
         return response()->json($comments, 200);
     }
 
-    public function store(Request $request, $id)
+    public function store(Request $request, FcmController $notifier, $id)
     {
         $request->validate([
             'parent_id' => 'nullable|integer',
@@ -31,12 +35,18 @@ class CommentController extends Controller
 
         $user = User::findOrFail(Auth::id());
         $post = Post::findOrFail($id);
+        $target = User::findOrFail($post->user_id);
 
         $post->comments()->create([
             'user_id' => $user->id,
             'parent_id' => $request->parent_id,
             'content' => $request->content,
         ]);
+
+        if ($user->id != $post->user_id && $request->parent_id == null) {
+            $notifier->sendCommentNotification($post, $user, $request->content);
+            $target->notify(new NewCommentNotification($post, $user, $request->content));
+        }
 
         return response()->json([
             'message' => 'Comment created successfully',

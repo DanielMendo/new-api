@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'last_name',
         'phone',
+        'bio',
     ];
 
     /**
@@ -81,5 +82,10 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function fcmTokens()
+    {
+        return $this->hasMany(FcmToken::class);
     }
 }

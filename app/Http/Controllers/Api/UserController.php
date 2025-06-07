@@ -166,4 +166,22 @@ class UserController extends Controller
             'message' => 'Password changed successfully',
         ], 200);
     }
+
+    public function search(Request $request)
+    {
+        $authUser = User::findOrFail(Auth::id());
+        $query = $request->input('query');
+
+        $users = User::withCount(['followers', 'following'])
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%')
+                    ->orWhere('last_name', 'like', '%' . $query . '%');
+            })
+            ->where('name', '!=', 'admin')
+            ->where('name', '!=', $authUser->name)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($users, 200);
+    }
 }

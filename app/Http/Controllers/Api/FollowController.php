@@ -4,16 +4,23 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\NewFollowerNotification;
 use App\Models\User;
 
 class FollowController extends Controller
 {
-    public function follow($id)
+    public function follow(FcmController $notifier, $id)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $target = User::findOrFail($id);
 
         $target->followers()->attach($user->id);
+
+        if ($user->id != $target->id) {
+            $notifier->sendFollowNotification($target, $user);
+            $target->notify(new NewFollowerNotification($user));
+        }
 
         return response()->json([
             'message' => 'Followed successfully',

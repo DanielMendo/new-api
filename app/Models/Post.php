@@ -5,18 +5,22 @@ namespace App\Models;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
+
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'user_id',
         'category_id',
         'title',
+        'slug',
         'content',
         'html',
         'image',
+        'image_urls',
         'is_published',
     ];
 
@@ -25,6 +29,10 @@ class Post extends Model
         'is_liked',
         'likes_count',
         'comments_count',
+    ];
+
+    protected $casts = [
+        'image_urls' => 'array',
     ];
 
 
