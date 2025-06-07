@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\PasswordResetController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('download.index');
 });
 
 Route::get('/.well-known/assetlinks.json', function () {
@@ -13,16 +13,15 @@ Route::get('/.well-known/assetlinks.json', function () {
 });
 
 Route::get('/download', function () {
-    return view('download.index');
-});
-
-Route::get('/download/apk', function () {
     $filePath = storage_path('app/public/bloogol.apk');
     return response()->download($filePath, 'bloogol.apk');
 });
 
 Route::get('/post/{id}', function ($id) {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->orWhere('slug', $id)
+        ->firstOrFail();
+
     return view('post.post_show', compact('post'));
 });
 

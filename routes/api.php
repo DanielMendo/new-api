@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/create', [PostController::class, 'store']);
     Route::get('/posts/following', [PostController::class, 'getPostFollowing']);
     Route::get('/posts/search', [PostController::class, 'search']);
+    Route::get('/posts/favorites', [FavoriteController::class, 'getFavorites']);
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     Route::get('/posts/{id}', [PostController::class, 'show']);
@@ -83,7 +84,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Favoritos
     Route::post('/posts/{id}/favorite', [FavoriteController::class, 'addFavorite']);
     Route::delete('/posts/{id}/favorite', [FavoriteController::class, 'removeFavorite']);
-    Route::get('/posts/favorites', [FavoriteController::class, 'getFavorites']);
 
     // Comentarios en posts
     Route::get('/posts/{id}/comments', [CommentController::class, 'index']);

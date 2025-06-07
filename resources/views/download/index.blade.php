@@ -5,8 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bloogol</title>
-    <!-- TailwindCSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Bloogol" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:image"
+        content="https://images.unsplash.com/photo-1525026198548-4baa812f1183?q=80&w=1468&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+    <meta property="og:description"
+        content="Únete a la comunidad Bloogol: comparte ideas, historias y momentos inolvidables" />
+    <meta property="og:site_name" content="{{ config('app.name', 'Mi Sitio') }}" />
+
+    <!-- Styles -->
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <script src="https://cdn.tailwindcss.com"></script>
+    @endif
 </head>
 
 <body class="bg-white text-gray-800">
@@ -46,7 +61,7 @@
                 Únete a la comunidad Bloogol: comparte ideas, historias y momentos inolvidables.
                 Disponible en Web y Móvil, Bloogol te mantendrá conectado donde quieras.
             </p>
-            <a href="{{ url('/download/apk') }}"
+            <a href="{{ url('/download') }}"
                 class="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 font-medium flex items-center space-x-2">
                 <!-- Icono de descarga -->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -158,7 +173,7 @@
     </section>
 
     <!-- Descarga -->
-    <section id="download" class="bg-blue-50 py-12">
+    <section id="download" class="py-12">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
                 ¡Lleva Bloogol contigo!
@@ -168,16 +183,26 @@
                 Disponible pronto para Android y iOS.
             </p>
             <div class="flex flex-col md:flex-row items-center justify-center gap-4">
-                <a href="{{ url('/download/apk') }}"
-                    class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium">
+                <a href="{{ url('/download') }}"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 fill-white">
+                        <path
+                            d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31C7.06 3.36 6 5.09 6 7h12c0-1.91-1.06-3.64-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z" />
+                    </svg>
                     Descargar para Android
                 </a>
-                <a href="#" class="bg-gray-800 text-white px-6 py-3 rounded-md hover:bg-gray-900 font-medium">
+                <a href="#"
+                    class="bg-gray-800 text-white px-6 py-3 rounded-md hover:bg-gray-900 font-medium flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-5 h-5 fill-white">
+                        <path
+                            d="M318.7 268.6c-.3-52.3 42.6-77.5 44.6-78.7-24.3-35.5-61.9-40.4-75.3-41-32-3.3-62.3 18.8-78.4 18.8s-40.7-18.3-66.9-17.8c-34.4.5-66.2 20.1-83.8 51.1-35.8 62.1-9.1 153.7 25.7 204.1 17.1 24.8 37.4 52.7 64 51.6 25.4-1 35-16.5 65.6-16.5s39.3 16.5 66.1 16 43.1-25.2 59.1-50.1c18.5-27 26.1-53.3 26.4-54.6-.6-.2-50.7-19.4-51-76.9zM261.4 96.4c14.2-17.2 23.8-41.2 21.2-65.4-20.5.8-45.4 13.6-60.3 30.9-13.2 15.4-24.6 39.9-21.5 63.3 22.7 1.7 46.2-11.6 60.6-28.8z" />
+                    </svg>
                     Descargar para iOS
                 </a>
             </div>
         </div>
     </section>
+
 
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 mt-12">
