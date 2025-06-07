@@ -1,0 +1,94 @@
+name: 🚀 Deploy Bloogol API
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DEPLOY_PATH: /home1/bloogolc/api_laravel/
+
+jobs:
+  deploy:
+    name: 🔧 Deploy on Production Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🧱 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 🧶 Install and build frontend assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: 🔐 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: 🧪 Test SSH connection
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+              -oStrictHostKeyChecking=no \
+              -oBatchMode=yes \
+              -oKexAlgorithms=+diffie-hellman-group-exchange-sha256 \
+              -p ${{ secrets.SSH_PORT }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo '✅ SSH connection successful'"
+
+      - name: 📤 Deploy via RSYNC
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/id_rsa -oStrictHostKeyChecking=no -oKexAlgorithms=+diffie-hellman-group-exchange-sha256 -p ${{ secrets.SSH_PORT }}" \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude ".env" \
+            --exclude "storage/" \
+            --exclude "vendor/" \
+            --exclude "node_modules/" \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}
+
+
+      - name: ⚙️ Run Laravel post-deploy commands via SSH
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+              -oKexAlgorithms=+diffie-hellman-group-exchange-sha256 \
+              -oStrictHostKeyChecking=no \
+              -p ${{ secrets.SSH_PORT }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+            cd $DEPLOY_PATH
+            chmod -R 775 bootstrap/cache
+
+            echo "📦 Instalando dependencias PHP..."
+            composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan storage:link
+          EOF
+        env:
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+
+      - name: ✅ Notify success on Telegram
+        if: ${{ success() }}
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text=$'✅ *Deploy exitoso en producción*\n\n*Branch:* ${{ github.ref_name }}\n*Autor:* ${{ github.actor }}\n*Commit:* ${{ github.event.head_commit.message }}' \
+          -d parse_mode=Markdown
+
+      - name: ❌ Notify failure on Telegram
+        if: ${{ failure() }}
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text=$'❌ *Deploy fallido en producción*\n\n*Branch:* ${{ github.ref_name }}\n*Autor:* ${{ github.actor }}\n*Commit:* ${{ github.event.head_commit.message }}' \
+          -d parse_mode=Markdown
