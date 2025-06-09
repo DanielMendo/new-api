@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\NotifyController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\UnsplashController;
 use App\Http\Controllers\Api\SocialAuthController;
 use App\Http\Controllers\Api\EditorImageController;
 use App\Http\Controllers\Api\LikeCommentController;
@@ -75,6 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/posts/{id}', [PostController::class, 'show']);
     Route::get('/posts/category/{id}', [PostController::class, 'getPostByCategory']);
     Route::get('/posts/mine/{id}', [PostController::class, 'getMyPosts']);
+
+    // Unsplash
+    Route::get('/unsplash', [UnsplashController::class, 'search']);
 
     // Likes en posts
     Route::post('/posts/{id}/like', [LikeController::class, 'addLike']);
