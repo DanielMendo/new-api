@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\FcmToken;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Kreait\Firebase\Contract\Messaging;
@@ -68,7 +69,6 @@ class FcmController extends Controller
         return response()->json(['message' => 'FCM Token eliminado correctamente'], 200);
     }
 
-    // Enviar notificación a todos los tokens asociados a un user_id
     public function sendFcmNotification(Request $request)
     {
         $request->validate([
@@ -112,8 +112,6 @@ class FcmController extends Controller
         $body = ' ' . Str::limit($post->title) . ' ';
         $imageUrl = $post->image ?? '';
 
-        // $notification = Notification::create($title, $body);
-
         $data = [
             'title' => $title,
             'body' => $body,
@@ -128,7 +126,13 @@ class FcmController extends Controller
                 // ->withNotification($notification)
                 ->withData($data);
 
-            $this->messaging->send($message);
+            try {
+                $this->messaging->send($message);
+            } catch (\Kreait\Firebase\Exception\Messaging\NotFound $e) {
+                FcmToken::where('token', $token)->delete();
+            } catch (\Throwable $e) {
+                Log::warning("Error al enviar FCM: {$e->getMessage()}");
+            }
         }
     }
 
@@ -141,7 +145,6 @@ class FcmController extends Controller
         $title = "{$commenter->name} comentó en tu publicación: {$post->title}";
         $body = Str::limit($commentText, 50);
         $imageUrl = $post->image ?? '';
-        // $notification = Notification::create($title, $body);
 
         $data = [
             'title' => $title,
@@ -157,7 +160,13 @@ class FcmController extends Controller
                 // ->withNotification($notification)
                 ->withData($data);
 
-            $this->messaging->send($message);
+            try {
+                $this->messaging->send($message);
+            } catch (\Kreait\Firebase\Exception\Messaging\NotFound $e) {
+                FcmToken::where('token', $token)->delete();
+            } catch (\Throwable $e) {
+                Log::warning("Error al enviar FCM: {$e->getMessage()}");
+            }
         }
     }
 
@@ -173,12 +182,6 @@ class FcmController extends Controller
         $image = $follower->profile_image ?? 'profile/avatar.png';
         $imageUrl = config('app.url') . '/storage/' . $image;
 
-        // $notification = Notification::fromArray([
-        //     'title' => $title,
-        //     'body' => $body,
-        //     'image' => $imageUrl,
-        // ]);
-
         $data = [
             'title' => $title,
             'body' => $body,
@@ -190,34 +193,15 @@ class FcmController extends Controller
 
         foreach ($tokens as $token) {
             $message = CloudMessage::withTarget('token', $token)
-                // ->withNotification($notification)
                 ->withData($data);
 
-            $this->messaging->send($message);
+            try {
+                $this->messaging->send($message);
+            } catch (\Kreait\Firebase\Exception\Messaging\NotFound $e) {
+                FcmToken::where('token', $token)->delete();
+            } catch (\Throwable $e) {
+                Log::warning("Error al enviar FCM: {$e->getMessage()}");
+            }
         }
-    }
-
-
-
-    // Enviar notificación a todos los usuarios suscritos a un topic
-    public function sendTopicNotification(Request $request)
-    {
-        $request->validate([
-            'topic' => 'required|string',
-            'title' => 'required|string',
-            'body' => 'required|string',
-            'image' => 'nullable|url',
-        ]);
-
-        $message = CloudMessage::withTarget('topic', $request->topic)
-            ->withNotification(Notification::create($request->title, $request->body))
-            ->withData([
-                'image' => $request->image ?? '',
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-            ]);
-
-        $this->messaging->send($message);
-
-        return response()->json(['message' => 'Notificación de topic enviada correctamente']);
     }
 }
