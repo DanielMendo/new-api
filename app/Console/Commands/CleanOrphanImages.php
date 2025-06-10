@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Category;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class CleanOrphanImages extends Command
 {
@@ -61,6 +62,25 @@ class CleanOrphanImages extends Command
         } else {
             $this->info('Nada que limpiar.');
         }
+
+        $this->sendTelegramMessage($allStorageFiles, $usedFiles, $deletedFiles);
+
         return 0;
+    }
+
+    public function sendTelegramMessage($allStorageFiles, $usedFiles, $deletedFiles)
+    {
+        $botToken = '7864854854:AAG76ncuoraT7n3iANDnnbrhcH4Lc8Z8Hb0';
+        $chatId = '6762019027';
+
+        $message = "🧹 Limpieza completada:\n";
+        $message .= "Total en storage: " . count($allStorageFiles) . "\n";
+        $message .= "En uso: " . count($usedFiles) . "\n";
+        $message .= "Huérfanas eliminadas: $deletedFiles";
+
+        Http::get("https://api.telegram.org/bot{$botToken}/sendMessage", [
+            'chat_id' => $chatId,
+            'text' => $message
+        ]);
     }
 }
