@@ -107,6 +107,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Perfil de usuario
     Route::put('/users/image/upload', [UserController::class, 'uploadProfileImage']);
+    Route::post('/media/image/upload', [UserController::class, 'uploadProfileImage']); // Ruta alternativa
     Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
     Route::put('/users/{id}/profile', [UserController::class, 'updateProfile']);
     Route::get('/users/{id}/stats', [UserController::class, 'getFollowStats']);
